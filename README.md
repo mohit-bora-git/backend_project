@@ -18,7 +18,7 @@
      * CORE JAVA
      * MYSQL
      * HIBERNATE
-     * TOMCAT SERVER
+     * TOMCAT SERVER{embedded}
 
 
 **FLOW OF THE PROJECT  SPRING MVC(model view controller) -**
