@@ -7,6 +7,7 @@ import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @Getter
 @Setter
@@ -21,8 +22,11 @@ public class CreateBookRequestDto {
     @Email
     String isbn;
 
-    @NotBlank
-    int cost;
+    @Positive
+    Integer cost;
+
+    @Positive
+    Integer rentCost;
 
     @NotBlank
     String authorName;
@@ -40,6 +44,7 @@ public class CreateBookRequestDto {
                 .name(name)
                 .isbn(isbn)
                 .cost(cost)
+                .rentCost(rentCost)
                 .author(author)
                 .build();
     }

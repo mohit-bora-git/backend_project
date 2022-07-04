@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,13 +22,13 @@ public class Orders {
     @JsonIgnore
     Integer id;
 
-//    @Version
-//    long versionId;
-
     String orderReference;
 
-    double cost;
+    double rentCost;
 
+    double fine;
+
+    LocalDate dueDate;
 
     @Enumerated(value = EnumType.STRING)
     OrderStatus orderStatus;

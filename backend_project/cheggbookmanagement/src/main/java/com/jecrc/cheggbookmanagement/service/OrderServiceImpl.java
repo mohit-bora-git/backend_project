@@ -13,6 +13,8 @@ import com.jecrc.cheggbookmanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,27 +37,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     UserInfoConfig userInfoConfig;
-
-
-//    @Override
-//    public Orders createOrder(CreateOrderRequestDto orderRequestDto) {
-//        Orders orders= orderRequestDto.toOrder();
-//        return  orderRepository.save(orders);
-//    }
-//
-//
-//    @Override
-//    public Orders updateOrder(UpdateOrderRequestDto requestDto) {
-//        Optional<Orders> byOrderReference=orderRepository.findByOrderReference(requestDto.getOrderReferenceId());
-//        if(byOrderReference.isEmpty()){
-//            throw new OrderException(ExceptionCode.CHEGG_05);
-//        }
-//        Orders existingOrder=byOrderReference.get();
-//        existingOrder.setOrderStatus(OrderStatus.valueOf(requestDto.getOrderStatus()));
-//        existingOrder.setCost(requestDto.getCost());
-//        return orderRepository.save(existingOrder);
-//    }
-
 
     @Override
     public Orders placeOrder(Integer userId, Integer bookId) {
@@ -94,9 +75,10 @@ public class OrderServiceImpl implements OrderService {
 
         Orders orders= Orders.builder()
                 .orderStatus(PENDING)
-                .cost(bookCatlogue.getCost())
+                .rentCost(bookCatlogue.getRentCost())
                 .orderReference(UUID.randomUUID().toString())
                 .orderedBook(bookCatlogue)
+                .dueDate(LocalDate.ofEpochDay(01-07-2022))
                 .transactUser(transactingUser.get())
                 .build();
 
@@ -114,6 +96,64 @@ public class OrderServiceImpl implements OrderService {
             bookCatlogue.setBookStatus(AVAILABLE);
             bookCatlogue.setUserInfo(null);
             bookRepository.save(bookCatlogue);
+
+            orders.setOrderStatus(FAILED);
+            orderRepository.save(orders);
+        }
+        return orders;
+    }
+
+    @Override
+    public Orders returnOrder(Integer userId, Integer bookId) {
+
+        Optional<UserInfo> transactingUser=userRepository.findById(userId);
+        if(transactingUser.isEmpty()){
+            throw new UserException(ExceptionCode.CHEGG_06);
+        }
+
+        Books books=bookRepository.findById(bookId).get();
+
+        UserInfo userInfo=transactingUser.get();
+        LocalDate duedate=null;
+        for(Orders orders:userInfo.getOrdersList()){
+            if(orders.getOrderedBook().getId()==bookId){
+                duedate=orders.getDueDate();
+                break;
+            }
+        }
+
+
+        Orders orders= Orders.builder()
+                .orderStatus(PENDING)
+                .rentCost(books.getRentCost())
+                .orderReference(UUID.randomUUID().toString())
+                .orderedBook(books)
+                .dueDate(duedate)
+                .transactUser(transactingUser.get())
+                .build();
+
+        if((LocalDate.now().compareTo(duedate))>0){
+           double difference=Duration.between(duedate,LocalDate.now()).toDays();
+           double fine=difference*10;
+           orders.setFine(fine);
+        }
+
+        try{
+
+            orderRepository.save(orders);
+            books.setBookStatus(AVAILABLE);
+            books.setUserInfo(null);
+            userInfo.getIssuedBooks().remove(books);
+            bookRepository.save(books);
+
+            orders.setOrderStatus(SUCCESS);
+            orderRepository.save(orders);
+        }
+        catch(Exception e){
+            books.setBookStatus(UNAVAILABLE);
+            books.setUserInfo(userInfo);
+            userInfo.getIssuedBooks().add(books);
+            bookRepository.save(books);
 
             orders.setOrderStatus(FAILED);
             orderRepository.save(orders);

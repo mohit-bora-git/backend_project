@@ -5,8 +5,8 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +33,8 @@ public class Books {
 
     Integer cost;
 
+    Integer rentCost;
+
     @Enumerated(EnumType.STRING)
     BookStatus bookStatus;
 
@@ -56,9 +58,11 @@ public class Books {
     @UpdateTimestamp
     LocalDateTime modifiedDate;
 
-    @PrePersist
-    public void prePersistCheck(){
-        log.info("----->prePersistCheck {}",this.bookStatus);
+
+
+    @PostPersist
+    public void postPersistCheck(){
+        log.info("----->prePersistCheck {}",this);
         if(Objects.isNull(this.bookStatus)){
             this.bookStatus=BookStatus.AVAILABLE;
         }

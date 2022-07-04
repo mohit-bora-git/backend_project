@@ -9,9 +9,7 @@ import com.jecrc.cheggbookmanagement.model.requests.UpdateOrderRequestDto;
 
 public interface OrderService {
 
-//    Orders createOrder(CreateOrderRequestDto orderRequestDto);
-//
-//    Orders updateOrder(UpdateOrderRequestDto requestDto);
-
     Orders placeOrder(Integer userId,Integer bookId);
+
+    Orders returnOrder(Integer userId,Integer bookId);
 }
