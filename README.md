@@ -2,7 +2,7 @@
 
 **CHEGG BOOK MANAGEMENT -**
 
-     * Book Issue on rent
+     * Issue Books on rent
      * Need to pay very less amount for renting a book    
      * 6 months return policy
      * user can issue not more than 10 books at a time
